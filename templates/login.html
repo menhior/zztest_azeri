@@ -1,0 +1,144 @@
+{% extends "index.html" %}
+
+{% block title %}Daxil ol - ZZTest{% endblock title %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    <div class="card shadow-sm p-4 p-md-4 login-card"> {# Reduced padding here #}
+        <div class="card-body text-center">
+            <h1 class="card-title mb-2 display-5 fw-bold text-dark">Xoş gəlmisiniz!</h1>
+            <p class="card-text text-muted mb-4 fs-5">Öyrənmə səyahətinizə başlamağa hazırsınız?</p> {# Reduced margin #}
+
+            {% comment %} Display messages {% endcomment %}
+            {% if messages %}
+            <div class="mb-3"> {# Reduced margin #}
+                {% for message in messages %}
+                <div class="alert alert-warning-light text-center" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="" class="text-start">
+                {% csrf_token %}
+                <div class="mb-3"> {# Reduced margin #}
+                    <label for="id_username" class="form-label visually-hidden">İstifadəçi adı</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" name="username" class="form-control form-control-lg" id="id_username" placeholder="İstifadəçi adınız" required autofocus>
+                    </div>
+                </div>
+                <div class="mb-3"> {# Reduced margin #}
+                    <label for="id_password" class="form-label visually-hidden">Parol</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="password" class="form-control form-control-lg" id="id_password" placeholder="Parolunuz" required>
+                    </div>
+                </div>
+                <div class="mb-4 form-check d-flex justify-content-between align-items-center"> {# Reduced margin #}
+                    <div>
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Məni xatırla</label>
+                    </div>
+                    <div>
+                        <a href="#" class="text-decoration-none text-secondary small fw-bold">Parolu unutmusunuz?</a>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg fw-bold">Daxil ol <i class="fas fa-sign-in-alt ms-2"></i></button>
+                </div>
+            </form>
+
+            <p class="text-center mt-4 mb-0 text-muted"> {# Reduced margin #}
+                Yenisiniz? <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">Hesab yaradın!</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Ensure the body background remains white, without affecting the navbar */
+    html, body {
+        height: 100%; /* Ensure full height for centering */
+    }
+    body {
+        background-color: #ffffff; /* Explicitly white background */
+    }
+
+    .login-card {
+        max-width: 400px; /* Slightly narrower to gain vertical space */
+        width: 100%;
+        border-radius: 1rem;
+        background: #ffffff;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.06);
+        border: 1px solid #e0e0e0;
+    }
+    .card-title {
+        color: #343a40;
+    }
+    .card-text {
+        color: #6c757d;
+    }
+
+    .clean-input-group .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        border-right: none;
+        padding: 0.65rem 0.9rem; /* Slightly reduced padding */
+        font-size: 0.95rem; /* Slightly smaller font */
+        border-radius: 0.5rem 0 0 0.5rem;
+    }
+    .clean-input-group .form-control {
+        border: 1px solid #dee2e6;
+        border-left: none;
+        border-radius: 0 0.5rem 0.5rem 0;
+        padding: 0.65rem 0.9rem; /* Slightly reduced padding */
+        font-size: 0.95rem; /* Slightly smaller font */
+    }
+    .clean-input-group .form-control:focus {
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2);
+        border-color: #86b7fe;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        transition: all 0.2s ease;
+        border-radius: 0.5rem;
+        padding: 0.7rem 1.4rem; /* Slightly reduced padding */
+        font-size: 1rem; /* Slightly smaller font */
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+    }
+
+    .alert-warning-light {
+        border-radius: 0.5rem;
+        font-size: 0.85rem; /* Slightly smaller font */
+        padding: 0.5rem 0.7rem; /* Slightly reduced padding */
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2);
+    }
+
+    a {
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock content %}

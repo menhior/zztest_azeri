@@ -1,0 +1,46 @@
+<div class="modal fade" id="connectionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Qoşulma Sorğusu Göndər</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bağla"></button>
+      </div>
+      <div class="modal-body">
+        <form id="connectionForm">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">İstifadəçi ID</label>
+            <input type="text" class="form-control" name="receiver_id" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv et</button>
+        <button type="button" class="btn btn-primary" id="sendRequestBtn">Sorğu Göndər</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('sendRequestBtn').addEventListener('click', function() {
+    const form = document.getElementById('connectionForm');
+    const formData = new FormData(form);
+    
+    fetch("{% url 'connection_request' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            location.reload();
+        } else {
+            alert('Xəta: ' + data.message);
+        }
+    });
+});
+</script>

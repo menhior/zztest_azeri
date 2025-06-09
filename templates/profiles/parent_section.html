@@ -1,0 +1,102 @@
+<div class="parent-profile">
+    <!-- Contact Info -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Parent Information</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Mobile:</strong> {{ profile.mobile }}</p>
+        </div>
+    </div>
+
+    <!-- Children Connections -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>My Children</h4>
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#connectionModal">
+                <i class="fas fa-plus"></i> Add Child
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Child</th>
+                            <th>Grade</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for relation in profile.students.all %}
+                        <tr>
+                            <td>{{ relation.student.get_name }}</td>
+                            <td>{{ relation.student.grade }}</td>
+                            <td>
+                                {% if relation.is_approved %}
+                                <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not relation.is_approved %}
+                                <a href="{% url 'handle_connection_request' 'parent' relation.id 'approve' %}" 
+                                   class="btn btn-sm btn-success">Approve</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No children connected</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Children's Performance -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Children's Academic Progress</h4>
+        </div>
+        <div class="card-body">
+            {% for relation in profile.students.all %}
+                {% if relation.is_approved %}
+                <div class="mb-4">
+                    <h5>{{ relation.student.get_name }} (Grade {{ relation.student.grade }})</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Quiz</th>
+                                    <th>Subject</th>
+                                    <th>Score</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for submission in relation.student.quizsubmission_set.all %}
+                                <tr>
+                                    <td>{{ submission.quiz.title }}</td>
+                                    <td>{{ submission.quiz.category.name }}</td>
+                                    <td>{{ submission.score }}/{{ submission.quiz.question_set.count }}</td>
+                                    <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No quiz attempts yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

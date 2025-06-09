@@ -1,0 +1,20 @@
+{% if submissions %}
+<div class="row">
+    {% for submission in submissions|slice:":5" %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ submission.quiz.title }}</h5>
+                <p class="card-text mb-1"><strong>Score:</strong> {{ submission.score }}</p>
+                <p class="card-text"><strong>Submitted:</strong> {{ submission.submitted_at|date:"Y-m-d H:i" }}</p>
+                <a href="{% url 'quiz_result' submission.id %}" class="btn btn-sm btn-primary mt-2">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    No quizzes found for this subject.
+</div>
+{% endif %}

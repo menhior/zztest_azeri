@@ -1,0 +1,475 @@
+{% extends 'index.html' %}
+{% load static %}
+{# Removed: {% load custom_filters %} - This line is now gone if you don't use it #}
+
+{% block title %}{{submission.quiz.title}} üçün Nəticə - ZZTest{% endblock title %}
+
+{% block extra_head %}
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #343a40;
+        }
+
+        .result-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            margin-bottom: 3.5rem;
+            border: 1px solid #e0e6eb;
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%);
+            color: white;
+            padding: 3rem 0;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        .result-header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .result-header p.lead {
+            font-size: 1.4rem;
+            opacity: 0.9;
+        }
+
+        /* --- STYLES FOR SCORE CARD (The specific score display) --- */
+        .score-display-card {
+            background-color: #fff; /* White card for the score */
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Clearer shadow */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e0e6eb; /* Subtle border */
+        }
+
+        .score-display-card .score-message {
+            font-size: 1.6rem;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .score-display-card .main-score {
+            font-size: 5.5rem; /* Super large for primary focus */
+            font-weight: 800;
+            color: #28a745; /* Prominent green */
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+        }
+
+        .score-display-card .total-out-of {
+            font-size: 1.8rem; /* Size for "out of 100" */
+            font-weight: 600;
+            color: #6c757d; /* Softer color for secondary info */
+            margin-bottom: 1.5rem;
+        }
+
+        .score-display-card .percentage-text {
+            font-size: 2.5rem; /* Prominent percentage */
+            font-weight: 700;
+            color: #4CAF50; /* A slightly different green for distinction */
+            margin-top: -1rem; /* Pull up slightly to reduce gap with main score */
+            margin-bottom: 2rem;
+        }
+
+        /* Progress Bar for Score within the score card */
+        .score-progress-bar-container {
+            height: 18px; /* Taller bar */
+            border-radius: 9px;
+            background-color: #e9ecef;
+            overflow: hidden;
+            width: 100%; /* Ensure it spans the full width of the score-box */
+            margin-top: 1rem; /* Space above the bar */
+        }
+        .score-progress-bar {
+            border-radius: 9px;
+            transition: width 1s ease-out, background-color 0.5s ease;
+            background: linear-gradient(90deg, #28a745 0%, #4CAF50 100%); /* Green gradient */
+            box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.1);
+        }
+        .score-progress-bar.bg-danger { background: linear-gradient(90deg, #dc3545 0%, #ef5350 100%) !important; }
+        .score-progress-bar.bg-warning { background: linear-gradient(90deg, #ffc107 0%, #ffeb3b 100%) !important; }
+        /* --- END STYLES FOR SCORE CARD --- */
+
+        .summary-details .list-group-item {
+            border: none;
+            padding: 0.8rem 0;
+            font-size: 1.05rem;
+            color: #495057;
+        }
+        .summary-details .list-group-item strong {
+            color: #212529;
+            font-weight: 600;
+        }
+        .summary-details .list-group-item span.badge {
+            font-size: 0.95em;
+            padding: 0.6em 1em;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .time-info i {
+            color: #888;
+            margin-right: 0.5rem;
+        }
+
+        .bottom-actions {
+            background-color: #ffffff;
+            padding: 2.5rem 0;
+            text-align: center;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            margin-top: 4rem;
+            border: 1px solid #e0e6eb;
+        }
+        .bottom-actions .btn {
+            padding: 0.9rem 2.2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .bottom-actions .btn-outline-primary {
+            border-width: 2px;
+            color: #007bff;
+            border-color: #007bff;
+        }
+        .bottom-actions .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .bottom-actions .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .bottom-actions .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .bottom-actions .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .question-breakdown-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        .question-card {
+            background-color: #ffffff;
+            border: 1px solid #e0e6eb;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.25s ease-in-out;
+            border-left: 6px solid transparent;
+        }
+        .question-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .question-card .card-header {
+            background-color: #f7f9fc;
+            font-weight: 600;
+            padding: 1.25rem 1.75rem;
+            border-top-left-radius: 11px;
+            border-top-right-radius: 11px;
+            border-bottom: 1px solid #e0e6eb;
+            font-size: 1.05rem;
+        }
+        .question-card .card-body {
+            padding: 2rem;
+        }
+        .question-card .card-text {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            color: #343a40;
+        }
+        .question-card .list-group-item {
+            border: none;
+            padding: 0.9rem 0;
+            display: flex;
+            align-items: flex-start;
+        }
+        .question-card .form-check-input {
+            margin-top: 0.2rem;
+            margin-right: 1rem;
+            transform: scale(1.2);
+        }
+        .question-card .form-check-label {
+            font-size: 1.05rem;
+            color: #495057;
+            flex-grow: 1;
+        }
+
+        /* Question Status Styling */
+        .question-card.correct {
+            border-left-color: #28a745;
+        }
+        .question-card.incorrect {
+            border-left-color: #dc3545;
+        }
+        .question-card.skipped {
+            border-left-color: #ffc107;
+        }
+
+        /* Option Status Icons & Backgrounds */
+        .list-group-item-success {
+            background-color: #e6f7ed !important;
+            font-weight: 600;
+            color: #228b22;
+            border-radius: 8px;
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+        .list-group-item-danger {
+            background-color: #fcebeb !important;
+            font-weight: 600;
+            color: #cc0000;
+            border-radius: 8px;
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+        .list-group-item-info {
+            background-color: #e0f2f7 !important;
+            font-weight: 600;
+            color: #007bff;
+            border-radius: 8px;
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+        .list-group-item-secondary {
+            color: #6c757d;
+            border-radius: 8px;
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 0.6rem;
+        }
+        .list-group-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .solution-explanation {
+            background-color: #eef7ff;
+            border-left: 5px solid #007bff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            color: #343a40;
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .solution-explanation strong {
+            color: #0056b3;
+            font-weight: 700;
+        }
+    </style>
+{% endblock extra_head %}
+
+{% block content %}
+
+<div class="container my-5 animate__animated animate__fadeIn">
+
+    <div class="result-card">
+        <div class="result-header text-center animate__animated animate__fadeInDown">
+            <h1 class="mb-2">Viktorina Nəticəsi</h1>
+            <p class="lead">{{ submission.quiz.title|title }}</p>
+        </div>
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                {# --- DEDICATED SCORE DISPLAY CARD --- #}
+                <div class="col-md-6 text-center text-md-start mb-4 mb-md-0 animate__animated animate__fadeInLeft">
+                    <div class="score-display-card">
+                        <p class="score-message">Sizin Yekun Xalınız:</p>
+                        <p class="main-score">{{ submission.score }}</p>
+                        <p class="total-out-of">ümumi {{ total_possible_marks }}</p>
+                        <p class="percentage-text">{{ score_percentage|floatformat:0 }}%</p>
+                        <div class="score-progress-bar-container">
+                            <div class="score-progress-bar"
+                                 role="progressbar"
+                                 style="width: {{ score_percentage }}%"
+                                 aria-valuenow="{{ submission.score }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="{{ total_possible_marks }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {# --- END DEDICATED SCORE DISPLAY CARD --- #}
+                
+                <div class="col-md-6 animate__animated animate__fadeInRight">
+                    <ul class="list-group list-group-flush summary-details">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Viktorina</strong>
+                            <span>{{ submission.quiz.title|title }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Kateqoriya</strong>
+                            <span>{{ submission.quiz.category.name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Çətinlik</strong>
+                            <span class="badge bg-{% if submission.quiz.difficulty == 'Easy' %}success{% elif submission.quiz.difficulty == 'Medium' %}warning{% else %}danger{% endif %}">
+                                {{ submission.quiz.difficulty }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center time-info">
+                            <strong>Təqdim Edilib</strong>
+                            {# Using Django's built-in date filter since custom_filters is removed #}
+                            <span><i class="far fa-clock"></i> {{ submission.submitted_at|date:"M d, Y H:i" }}</span> 
+                        </li>
+                        {% if submission.time_spent %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center time-info">
+                            <strong>Sərf Olunan Vaxt</strong>
+                            <span><i class="fas fa-hourglass-half"></i> {{ formatted_duration }}</span>
+                        </li>
+                        {% endif %}
+                        {% if submission.quiz.avg_score %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Sinif Ortalaması</strong>
+                            <span>{{ submission.quiz.avg_score|floatformat:1 }}/{{ submission.quiz.question_set.count }}</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    ---
+
+    <h3 class="text-center question-breakdown-title animate__animated animate__fadeInUp">Sual Təhlili</h3>
+    
+    <div class="questions">
+        {% for question in questions_with_delays %}
+        <div class="card question-card animate__animated animate__fadeInUp animate__delay-{{ question.animation_delay }}s 
+            {% if question.id in correct_question_ids %}
+                correct
+            {% elif question.id in user_answered_question_ids %}
+                incorrect
+            {% else %}
+                skipped
+            {% endif %}">
+            
+            <div class="card-header">
+                <span class="fw-bold">Sual {{ forloop.counter }}</span>
+                <div>
+                    <span class="badge bg-secondary me-2">{{ question.mark }} Bal{{ question.mark|pluralize }}</span>
+                    {% if question.id in correct_question_ids %}
+                    <i class="fas fa-check-circle text-success fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="Düzgün Cavab"></i>
+                    {% elif question.id in user_answered_question_ids %}
+                    <i class="fas fa-times-circle text-danger fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="Səhv Cavab"></i>
+                    {% else %}
+                    <i class="fas fa-question-circle text-warning fs-5" data-bs-toggle="tooltip" data-bs-placement="top" title="Buraxılıb/Cavablandırılmayıb"></i>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ question.text }}</p>
+                
+                <div class="list-group list-group-flush">
+                    {% for option in question.choice_set.all %}
+                    {% if option.is_correct %}
+                        {% if option.id in user_selected_choices %}
+                            <div class="list-group-item list-group-item-info">
+                                <input class="form-check-input" type="radio" disabled checked>
+                                <label class="form-check-label">{{ option.text }} <i class="fas fa-check-circle ms-2"></i> (Sizin Düzgün Cavabınız)</label>
+                            </div>
+                        {% else %}
+                            <div class="list-group-item list-group-item-success">
+                                <input class="form-check-input" type="radio" disabled>
+                                <label class="form-check-label">{{ option.text }} <i class="fas fa-check-circle ms-2"></i> (Düzgün Cavab)</label>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {% if option.id in user_selected_choices %}
+                            <div class="list-group-item list-group-item-danger">
+                                <input class="form-check-input" type="radio" disabled checked>
+                                <label class="form-check-label">{{ option.text }} <i class="fas fa-times-circle ms-2"></i> (Sizin Səhv Cavabınız)</label>
+                            </div>
+                        {% else %}
+                            <div class="list-group-item list-group-item-secondary">
+                                <input class="form-check-input" type="radio" disabled>
+                                <label class="form-check-label">{{ option.text }}</label>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% if question.solution_explanation %}
+                <div class="solution-explanation">
+                    <strong>İzah:</strong> {{ question.solution_explanation }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    ---
+
+    <div class="bottom-actions animate__animated animate__fadeInUp">
+        <a href="{% url 'all_quiz' %}" class="btn btn-outline-primary me-3">
+            <i class="fas fa-list-alt me-2"></i> Bütün Viktorinalara Bax
+        </a>
+        <a href="{% url 'quiz' submission.quiz.id %}" class="btn btn-primary">
+            <i class="fas fa-redo me-2"></i> Bu Viktorinanı Təkrar Keçin
+        </a>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js" integrity="sha512-Szkwf/k/6f4zQz2/p2xK4y8e/D/o8F8J5C7n2qF7K6+a6A1T7Q6Z7Y6U8J4P2b7K8A==" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const scoreProgressBar = document.querySelector('.score-progress-bar');
+            const targetWidth = scoreProgressBar.style.width;
+            scoreProgressBar.style.width = '0';
+            setTimeout(() => {
+                scoreProgressBar.style.width = targetWidth;
+                const scorePercentage = parseFloat(targetWidth);
+                if (scorePercentage < 50) {
+                    scoreProgressBar.classList.add('bg-danger');
+                } else if (scorePercentage < 75) {
+                    scoreProgressBar.classList.add('bg-warning');
+                } else {
+                    scoreProgressBar.classList.add('bg-success');
+                }
+            }, 300);
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
+{% endblock scripts %}

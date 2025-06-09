@@ -1,0 +1,321 @@
+{% extends 'index.html' %}
+
+{% block title %}Qeydiyyat - ZZTest{% endblock title %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
+    <div class="card shadow-sm p-3 p-md-4 register-card"> {# Padding burada azaldılıb #}
+        <div class="card-body text-center">
+            <h1 class="card-title mb-2 fs-2 fw-bold text-dark">ZZTest-ə qoşulun!</h1> {# Başlıq bir qədər kiçildilib #}
+            <p class="card-text text-muted mb-4">Bizimlə öyrənmə macəranıza başlayın!</p> {# Kiçik, azaldılmış boşluq #}
+
+            {% comment %} Mesajları göstər {% endcomment %}
+            {% if messages %}
+            <div class="mb-3"> {# Boşluq azaldılıb #}
+                {% for message in messages %}
+                <div class="alert alert-warning-light text-center" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if not user_type %}
+            <form method="POST" action="" class="text-start">
+                {% csrf_token %}
+                <input type="hidden" name="step" value="1">
+                <div class="mb-4"> {# Boşluq azaldılıb #}
+                    <label class="form-label d-block mb-2 fw-semibold">Qeydiyyat növü:</label> {# Kiçik etiket #}
+                    <div class="user-type-selection">
+                        <label class="form-check-label d-flex align-items-center mb-2 p-2 rounded-3 clean-radio-card"> {# Padding və boşluq azaldılıb #}
+                            <input class="form-check-input me-3" type="radio" name="user_type" id="student" value="student" required>
+                            <i class="fas fa-user-graduate fa-lg text-info me-2"></i> {# Kiçik ikon #}
+                            <span class="fs-6">Tələbə</span> {# Kiçik mətn #}
+                        </label>
+                        <label class="form-check-label d-flex align-items-center mb-2 p-2 rounded-3 clean-radio-card">
+                            <input class="form-check-input me-3" type="radio" name="user_type" id="teacher" value="teacher">
+                            <i class="fas fa-chalkboard-teacher fa-lg text-success me-2"></i>
+                            <span class="fs-6">Müəllim</span>
+                        </label>
+                        <label class="form-check-label d-flex align-items-center mb-2 p-2 rounded-3 clean-radio-card">
+                            <input class="form-check-input me-3" type="radio" name="user_type" id="parent" value="parent">
+                            <i class="fas fa-user-friends fa-lg text-warning me-2"></i>
+                            <span class="fs-6">Valideyn</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-md fw-bold">Davam et <i class="fas fa-arrow-right ms-2"></i></button> {# Düymə bir qədər kiçildilib #}
+                </div>
+                <p class="text-center mt-4 mb-0 text-muted small"> {# Boşluq azaldılıb, mətn kiçildilib #}
+                    Artıq üzvünüz var? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Buradan daxil olun</a>
+                </p>
+            </form>
+
+            {% else %}
+            <form method="POST" action="" enctype="multipart/form-data" class="text-start">
+                {% csrf_token %}
+                <input type="hidden" name="step" value="2">
+                <input type="hidden" name="user_type" value="{{ user_type }}">
+                
+                <h4 class="text-center mb-3 text-secondary">Qeydiyyat növü: <span class="text-capitalize text-primary">{{ user_type }}</span></h4> {# Boşluq azaldılıb #}
+
+                <div class="mb-3"> {# Boşluq azaldılıb #}
+                    <label for="id_username" class="form-label visually-hidden">İstifadəçi adı</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" name="username" class="form-control form-control-sm" id="id_username" placeholder="İstifadəçi adı*" required> {# Kiçik giriş sahəsi #}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_email" class="form-label visually-hidden">Email</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="email" name="email" class="form-control form-control-sm" id="id_email" placeholder="Email*" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_first_name" class="form-label visually-hidden">Ad</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-signature"></i></span>
+                        <input type="text" name="first_name" class="form-control form-control-sm" id="id_first_name" placeholder="Ad*" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_last_name" class="form-label visually-hidden">Soyad</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-signature"></i></span>
+                        <input type="text" name="last_name" class="form-control form-control-sm" id="id_last_name" placeholder="Soyad*" required>
+                    </div>
+                </div>
+
+                <div class="mb-3"> {# Boşluq azaldılıb #}
+                    <label class="form-label d-block mb-2">Cins*</label>
+                    <div class="d-flex flex-wrap gap-2 gender-selection"> {# Kiçik boşluq #}
+                        <label class="form-check-label d-flex align-items-center p-2 rounded-3 clean-radio-card flex-grow-1 justify-content-center"> {# Padding azaldılıb #}
+                            <input class="form-check-input me-2" type="radio" name="gender" id="id_gender_male" value="Male" required>
+                            <i class="fas fa-male text-primary me-2"></i>
+                            <span>Kişi</span>
+                        </label>
+                        <label class="form-check-label d-flex align-items-center p-2 rounded-3 clean-radio-card flex-grow-1 justify-content-center">
+                            <input class="form-check-input me-2" type="radio" name="gender" id="id_gender_female" value="Female">
+                            <i class="fas fa-female text-danger me-2"></i>
+                            <span>Qadın</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_password1" class="form-label visually-hidden">Şifrə</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="password1" class="form-control form-control-sm" id="id_password1" placeholder="Şifrə*" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="id_password2" class="form-label visually-hidden">Şifrəni təsdiqləyin</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="password2" class="form-control form-control-sm" id="id_password2" placeholder="Şifrəni təsdiqləyin*" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_mobile" class="form-label visually-hidden">Mobil nömrə</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                        <input type="tel" name="mobile" class="form-control form-control-sm" id="id_mobile" placeholder="Mobil (məsələn, +994XXXXXXXXX və ya 0XXXXXXXXX)" required
+                               pattern="^(\+994\d{9}|0(50|51|55|70|77|99)\d{7}|\+\d{7,15})$"
+                               title="Azərbaycan nömrəsi (məsələn, +994501234567 və ya 0501234567) və ya ümumi beynəlxalq nömrə (məsələn, +1234567890) daxil edin">
+                    </div>
+                </div>
+                
+                {% if user_type == "teacher" %}
+                    <div class="mb-3">
+                        <label for="subject" class="form-label visually-hidden">Tədris fənni</label>
+                        <div class="input-group clean-input-group">
+                            <span class="input-group-text"><i class="fas fa-book-open"></i></span>
+                            <select name="subject" class="form-select form-control-sm" id="subject" required>
+                                <option value="" selected disabled>Tədris fənninizi seçin*</option>
+                                <option value="math">Riyaziyyat</option>
+                                <option value="physics">Fizika</option>
+                                <option value="chemistry">Kimya</option>
+                                <option value="biology">Biologiya</option>
+                                <option value="english">İngilis dili</option>
+                                <option value="literature">Azərbaycan dili və ədəbiyyatı</option>
+                                <option value="history">Azərbaycan tarixi</option>
+                                <option value="geography">Coğrafiya</option>
+                                <option value="russian">Rus dili</option>
+                                <option value="computer">İnformatika</option>
+                                <option value="pe">Bədən tərbiyəsi</option>
+                                <option value="arts">Təsviri incəsənət</option>
+                                <option value="music">Musiqi</option>
+                                <option value="civics">Vətəndaş tərbiyəsi</option>
+                            </select>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if user_type == 'student' %}
+                <div class="mb-3">
+                    <label for="id_grade" class="form-label visually-hidden">Sinif</label>
+                    <div class="input-group clean-input-group">
+                        <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
+                        <input type="number" name="grade" class="form-control form-control-sm" id="id_grade" min="1" max="11" placeholder="Sinif (1-11)*" required>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="mb-4 form-check text-center"> {# Boşluq azaldılıb #}
+                    <input type="checkbox" class="form-check-input" id="termsCheck" required>
+                    <label class="form-check-label small" for="termsCheck"> {# Kiçik mətn #}
+                        <a href="{% url 'terms_conditions' %}" class="text-primary fw-bold text-decoration-none">Şərtlər və Qaydalar</a> ilə razıyam
+                    </label>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-md fw-bold">Qeydiyyatdan keç <i class="fas fa-user-plus ms-2"></i></button> {# Düymə bir qədər kiçildilib #}
+                </div>
+                <p class="text-center mt-4 mb-0 text-muted small"> {# Boşluq azaldılıb, mətn kiçildilib #}
+                    Artıq üzvünüz var? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Buradan daxil olun</a>
+                </p>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Ensure the body background remains white, without affecting the navbar */
+    html, body {
+        height: 100%;
+    }
+    body {
+        background-color: #ffffff;
+    }
+
+    .register-card {
+        max-width: 500px; /* Reduced width for a more compact form */
+        width: 100%;
+        border-radius: 1rem;
+        background: #ffffff;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.06);
+        border: 1px solid #e0e0e0;
+    }
+    .card-title {
+        color: #343a40;
+    }
+    .card-text {
+        color: #6c757d;
+        font-size: 0.95rem; /* Slightly smaller */
+    }
+
+    /* Common Input Group Styling for Clean Look */
+    .clean-input-group .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        border-right: none;
+        padding: 0.65rem 0.9rem; /* Reduced padding */
+        font-size: 0.9rem; /* Reduced font size */
+        border-radius: 0.5rem 0 0 0.5rem;
+    }
+    .clean-input-group .form-control,
+    .clean-input-group .form-select {
+        border: 1px solid #dee2e6;
+        border-left: none;
+        border-radius: 0 0.5rem 0.5rem 0;
+        padding: 0.65rem 0.9rem; /* Reduced padding */
+        font-size: 0.9rem; /* Reduced font size */
+    }
+    .clean-input-group .form-control:focus,
+    .clean-input-group .form-select:focus {
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2);
+        border-color: #86b7fe;
+    }
+
+    /* Buttons Styling for Clean Look */
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        transition: all 0.2s ease;
+        border-radius: 0.5rem;
+        padding: 0.6rem 1.2rem; /* Reduced padding */
+        font-size: 0.95rem; /* Reduced font size */
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+    }
+
+    /* Alert Styling for Clean Look */
+    .alert-warning-light {
+        border-radius: 0.5rem;
+        font-size: 0.8rem; /* Reduced font size */
+        padding: 0.4rem 0.6rem; /* Reduced padding */
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+    }
+
+    /* Form Checkbox Styling for Clean Look */
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.2);
+    }
+
+    /* General Link Styling for Clean Look */
+    a {
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+
+    /* Custom styles for the clean radio card selections (User Type & Gender) */
+    .clean-radio-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        padding: 0.8rem; /* Reduced padding */
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        background-color: #fefefe;
+        box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.05);
+    }
+    .clean-radio-card:hover {
+        border-color: #c9e2fc;
+        box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.07);
+        transform: translateY(-1px);
+    }
+    .clean-radio-card input[type="radio"] {
+        opacity: 0;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+    }
+    .clean-radio-card input[type="radio"] + i + span::before {
+        content: '';
+        display: inline-block;
+        width: 1em; /* Reduced size */
+        height: 1em; /* Reduced size */
+        border: 2px solid #ced4da;
+        border-radius: 50%;
+        margin-right: 0.4em; /* Reduced margin */
+        vertical-align: middle;
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .clean-radio-card input[type="radio"]:checked + i + span::before {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        box-shadow: inset 0 0 0 3px #ffffff; /* Reduced inner circle size */
+    }
+    .clean-radio-card input[type="radio"]:checked + i + span {
+        font-weight: bold;
+        color: #0d6efd;
+    }
+</style>
+{% endblock content %}

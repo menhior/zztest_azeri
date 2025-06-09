@@ -1,0 +1,136 @@
+{% extends 'index.html' %}
+
+{% block title %}Bütün Quizlər - ZZTest{% endblock title %}
+
+{% block content %}
+<br/>
+<br/>
+<div class="quizzes-container">
+    <!-- Səhifə Başlığı -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold mb-3">
+            <i class="bi bi-journal-text text-primary me-2"></i>Bütün Quizlər
+        </h1>
+        <p class="text-muted">Müxtəlif mövzular üzrə biliklərinizi yoxlayın</p>
+    </div>
+
+    <!-- Kateqoriya Filtrləri -->
+    <div class="container mb-4">
+        <div class="card shadow-sm border-0 p-3" style="border-color: #e0e0e0 !important;">
+            <div class="d-flex flex-wrap align-items-center">
+                <span class="me-2 fw-medium text-muted">Filtrlə:</span>
+                <a href="{% url 'all_quiz' %}" class="btn btn-sm btn-outline-primary rounded-pill m-1 border">
+                    <i class="bi bi-collection me-1"></i>Hamısı
+                </a>
+                {% for category in categories %}
+                <a href="{% url 'search' category.name %}" class="btn btn-sm btn-outline-primary rounded-pill m-1 border">
+                    <i class="bi bi-tag-fill me-1"></i>{{category.name}}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Axtarış Formu -->
+    <div class="container mb-5">
+        <div class="card shadow-sm border-0 p-3" style="border-color: #e0e0e0 !important;">
+            <form class="row g-2" role="search" method="get" action="{% url 'search' ' ' %}">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input name="q" class="form-control border-start-0" type="search" placeholder="Quiz axtarın..." aria-label="Search">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 border-0">
+                        <i class="bi bi-search me-1"></i>Axtar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quiz Kartları -->
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% if quizzes|length > 0 %}
+                {% for quiz in quizzes %}
+                <div class="col">
+                    <div class="card shadow-sm h-100 border" style="border-color: #e0e0e0 !important;">
+                        <div class="card-body p-4">
+                            <!-- Quiz Başlıq -->
+                            <div class="d-flex align-items-start mb-3">
+                                <i class="bi bi-journal-text fs-4 text-primary mt-1 me-3"></i>
+                                <h4 class="card-title fw-bold mb-0">{{ quiz.title }}</h4>
+                            </div>
+                            
+                            <!-- Quiz Məlumat -->
+                            <div class="quiz-meta mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-question-circle-fill text-muted me-2"></i>
+                                    <span class="small">{{ quiz.question_set.all|length }} sual</span>
+                                </div>
+                                
+                                <!-- Təsvir -->
+                                <p class="card-text text-muted small mb-3" style="line-height: 1.5;">
+                                    {{ quiz.description|truncatewords:15 }}
+                                </p>
+                            </div>
+                            
+                            <!-- Nişanlar -->
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge bg-info bg-opacity-10 text-info border" style="border-color: #b8e0f8 !important;">
+                                    <i class="bi bi-tag-fill me-1"></i>{{ quiz.category.name }}
+                                </span>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border" style="border-color: #c8d6fa !important;">
+                                    {{ quiz.difficulty }}
+                                </span>
+                                <span class="badge bg-success bg-opacity-10 text-success border" style="border-color: #b8e0c8 !important;">
+                                    Sinif {{ quiz.grade }}
+                                </span>
+                            </div>
+                            
+                            <!-- Alt hissə -->
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: #f0f0f0 !important;">
+                                <a href="{% url 'quiz' quiz.id %}" class="btn btn-sm btn-primary rounded-pill px-3 border-0">
+                                    <i class="bi bi-play-fill me-1"></i>Başla
+                                </a>
+                                <span class="text-muted small">
+                                    <i class="bi bi-calendar me-1"></i>{{ quiz.created_at|date:"M d, Y" }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Boş vəziyyət -->
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 text-center py-5" style="border-color: #e0e0e0 !important;">
+                        <i class="bi bi-emoji-frown fs-1 text-muted mb-3"></i>
+                        <h5 class="text-muted">Quiz tapılmadı</h5>
+                        <p class="text-muted small mb-0">Axtarış və ya filtr parametrlərini dəyişin</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .quiz-meta {
+        border-left: 3px solid #e0e0e0;
+        padding-left: 1rem;
+        margin-left: 0.5rem;
+    }
+    .input-group-text {
+        border-right: none;
+    }
+    .form-control.border-start-0 {
+        border-left: none;
+    }
+</style>
+
+{% endblock content %}

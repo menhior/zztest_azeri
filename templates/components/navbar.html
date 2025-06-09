@@ -1,0 +1,220 @@
+{% load static %}
+
+<div class="container text-center my-2 d-sm-block d-lg-none">
+    <div class="btn-group mobile-nav-buttons" role="group" aria-label="Mobile Navigation">
+        <a href="{% url 'home' %}" class="btn btn-outline-primary"><i class="bi bi-house-door"></i></a>
+        <a href="{% url 'all_quiz' %}" class="btn btn-outline-primary">Quiz</a>
+        {% if request.user.is_superuser %}
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary text-success">İdarə Paneli</a>
+        {% endif %}
+        <a href="{% url 'leaderboard' %}" class="btn btn-outline-primary">Liderlər Lövhəsi</a>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-primary user-btn">
+            {{request.user.username}}</a>
+        <a href="{% url 'logout' %}" class="btn btn-outline-primary"><i class="bi bi-box-arrow-left"></i></a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-primary"><i class="bi bi-box-arrow-right"></i></a>
+        {% endif %}
+    </div>
+</div>
+
+<nav class="navbar navbar-expand-lg main-navbar d-none d-lg-block shadow-sm">
+    <div class="container">
+        <a class="navbar-brand brand-glow" href="{% url 'home' %}">ZZTEST</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link nav-link-custom" href="{% url 'all_quiz' %}">Quiz</a>
+                </li>
+                {% if request.user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link nav-link-custom dashboard-link" href="{% url 'dashboard' %}">İdarə Paneli</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link nav-link-custom" href="{% url 'leaderboard' %}">Liderlər Lövhəsi</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle nav-link-custom" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        Daha çox
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-custom">
+                        <li><a class="dropdown-item" href="{% url 'blogs' %}">Bloqlar</a></li>
+                        <li><a class="dropdown-item" href="{% url 'about' %}">Haqqımızda</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'downloads' %}">Yükləmələr</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form class="d-flex search-form" role="search" action="{% url 'search_users' %}">
+                <input class="form-control me-2 search-input" type="search" name="q" placeholder="İstifadəçiləri axtarın..." aria-label="Search">
+                <button class="btn btn-outline-success search-btn me-2" type="submit">Axtar</button>
+                {% if request.user.is_authenticated %}
+                <div class="dropdown me-2">
+                    <button class="btn btn-success dropdown-toggle user-menu-btn" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ request.user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-custom" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{% url 'profile' request.user.username %}">Profil</a></li>
+                        <li><a class="dropdown-item" href="{% url 'user_dashboard' %}">Sizin İdarə Paneliniz</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Çıxış</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary login-btn">Daxil ol</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</nav>
+
+<style>
+    /* Global Navbar Styling */
+    .main-navbar {
+        background-color: #ffffff; /* Clean white background */
+        border-bottom: 1px solid #e0e0e0; /* Subtle bottom border */
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+
+    /* Brand Styling */
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.6rem; /* Slightly larger and bolder */
+        color: #6a11cb !important; /* Matches hero section's primary color */
+        transition: color 0.2s ease;
+    }
+    .navbar-brand:hover {
+        color: #2575fc !important; /* Hover effect to secondary hero color */
+        text-shadow: 0 0 5px rgba(106, 17, 203, 0.5); /* Subtle glow effect */
+    }
+
+    /* Nav Links Styling */
+    .nav-link-custom {
+        font-weight: 500;
+        color: #495057; /* Darker gray for better contrast */
+        margin-right: 0.8rem; /* Consistent spacing */
+        transition: all 0.2s ease-in-out;
+        position: relative; /* For underline effect */
+        padding-bottom: 0.3rem; /* Space for underline */
+    }
+    .nav-link-custom:hover,
+    .nav-link-custom.active {
+        color: #6a11cb !important; /* Matches brand hover/active */
+    }
+    .nav-link-custom::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: #6a11cb; /* Underline color */
+        transition: width 0.3s ease-out, left 0.3s ease-out;
+    }
+    .nav-link-custom:hover::after,
+    .nav-link-custom.active::after {
+        width: 100%;
+        left: 0;
+    }
+
+    .dashboard-link {
+        color: #28a745 !important; /* Bootstrap success green */
+    }
+    .dashboard-link:hover {
+        color: #218838 !important;
+    }
+
+    /* Dropdown Styling */
+    .dropdown-menu-custom {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+    }
+    .dropdown-menu-custom .dropdown-item {
+        color: #495057;
+        padding: 0.6rem 1rem;
+    }
+    .dropdown-menu-custom .dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: #6a11cb;
+    }
+    .dropdown-menu-custom .dropdown-item.text-danger:hover {
+        background-color: #f8d7da; /* Light red background on hover for danger items */
+        color: #dc3545;
+    }
+
+    /* Search Form Styling */
+    .search-form .search-input {
+        border-radius: 0.5rem;
+        border-color: #ced4da;
+        padding: 0.5rem 0.9rem;
+    }
+    .search-form .search-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(106, 17, 203, 0.25);
+        border-color: #6a11cb;
+    }
+    .search-btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    /* User Dropdown Button */
+    .user-menu-btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        background-color: #28a745; /* Green for user button */
+        border-color: #28a745;
+        transition: all 0.2s ease;
+    }
+    .user-menu-btn:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    /* Login Button */
+    .login-btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        background-color: #0d6efd; /* Bootstrap primary blue */
+        border-color: #0d6efd;
+        transition: all 0.2s ease;
+    }
+    .login-btn:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    /* Mobile Nav Buttons (d-sm-block d-lg-none) */
+    .mobile-nav-buttons .btn {
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .mobile-nav-buttons .btn-outline-primary {
+        color: #6a11cb;
+        border-color: #6a11cb;
+    }
+    .mobile-nav-buttons .btn-outline-primary:hover {
+        background-color: #6a11cb;
+        color: #fff;
+    }
+    .mobile-nav-buttons .user-btn {
+        max-width: 120px; /* Constrain width for long usernames */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>

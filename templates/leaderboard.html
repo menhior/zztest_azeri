@@ -1,0 +1,113 @@
+{% extends 'index.html' %}
+
+{% block title %}Leaderboard - ZZTest{% endblock title %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="display-4 text-center mb-5 fw-bold text-primary">Top Performers</h1>
+
+    <div class="row justify-content-center">
+        {% if leaderboard_users|length == 0 %}
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-info shadow-sm" role="alert">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4 class="alert-heading">No Participants on the Leaderboard Yet!</h4>
+                    <p class="mb-0">Encourage users to complete quizzes to appear here.</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-md-10 col-lg-8">
+                <div class="list-group shadow-sm rounded-3 overflow-hidden">
+                    {% for rank_entry in leaderboard_users %}
+                        <a href="{% url 'profile' rank_entry.user.username %}" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4 leaderboard-item">
+                            {# Rank Badge with dynamic styling based on position #}
+                            <span class="badge rounded-pill me-3 fs-5 p-2 position-relative d-flex align-items-center justify-content-center leaderboard-rank-badge">
+                                {{ forloop.counter }}
+                                {% comment %} The icon will be added via CSS :before pseudo-element for top 3 ranks {% endcomment %}
+                            </span>
+                            
+                            <div class="flex-grow-1">
+                                <h5 class="mb-0 fw-bold text-dark">{{ rank_entry.user.username }}</h5>
+                                <small class="text-muted d-block mt-1">Total Score: <strong class="text-success">{{ rank_entry.total_score }}</strong></small>
+                                <small class="text-muted">Accuracy: <strong class="text-info">{{ rank_entry.accuracy_rate|floatformat:1 }}%</strong></small>
+                            </div>
+                            
+                            <div class="text-end ms-auto">
+                                {% if rank_entry.total_score > 0 %}
+                                    <span class="d-block text-success fw-bold">{{ rank_entry.total_score }} pts</span>
+                                {% else %}
+                                    <span class="d-block text-muted">No points yet</span>
+                                {% endif %}
+                                {% comment %} Assuming 'rank' is the actual database rank, not just loop counter {% endcomment %}
+                                <small class="text-muted">Rank: #{{ rank_entry.rank }}</small>
+                            </div>
+                        </a> 
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Custom styles for the leaderboard for extra flair */
+    .leaderboard-item {
+        transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        border-left: 5px solid transparent; /* For accent on hover */
+    }
+    .leaderboard-item:hover {
+        transform: translateX(5px);
+        background-color: var(--bs-light); /* Lighter background on hover */
+        border-left-color: var(--bs-primary); /* Primary color accent on hover */
+    }
+    .leaderboard-rank-badge {
+        /* Default size and styling for all badges */
+        min-width: 45px; 
+        height: 45px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        background-color: var(--bs-primary) !important; /* Default blue for ranks > 3 */
+        font-size: 1.1rem;
+        position: relative; /* For the pseudo-element icon */
+    }
+
+    /* Specific styling for top 3 badges */
+    .leaderboard-item:nth-child(1) .leaderboard-rank-badge {
+        background-color: #ffc107 !important; /* Gold */
+        font-size: 1.6rem !important; /* Larger for 1st place */
+        height: 55px !important;
+        min-width: 55px !important; /* Use min-width for proper sizing with text */
+    }
+    .leaderboard-item:nth-child(2) .leaderboard-rank-badge {
+        background-color: #6c757d !important; /* Silver */
+        font-size: 1.4rem !important; /* Slightly larger for 2nd place */
+        height: 50px !important;
+        min-width: 50px !important;
+    }
+    .leaderboard-item:nth-child(3) .leaderboard-rank-badge {
+        background-color: #0dcaf0 !important; /* Bootstrap Info / Light Blue for Bronze */
+        font-size: 1.2rem !important; /* Slightly larger for 3rd place */
+        height: 48px !important;
+        min-width: 48px !important;
+    }
+
+    /* Icons for top 3 badges using pseudo-elements */
+    /* Using trophy icon as default. Change content property for different icons. */
+    .leaderboard-item:nth-child(1) .leaderboard-rank-badge::after,
+    .leaderboard-item:nth-child(2) .leaderboard-rank-badge::after,
+    .leaderboard-item:nth-child(3) .leaderboard-rank-badge::after {
+        font-family: "Font Awesome 6 Free"; /* Ensure Font Awesome is loaded */
+        font-weight: 900; /* For solid icons */
+        content: "\f091"; /* Trophy icon */
+        position: absolute;
+        font-size: 0.7em;
+        top: -5px;
+        right: -5px;
+        color: rgba(255, 255, 255, 0.8); /* White or light color for icon */
+        opacity: 0.9;
+    }
+
+    .leaderboard-item img {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock content %}

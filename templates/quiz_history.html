@@ -1,0 +1,158 @@
+{% extends 'index.html' %}
+{% block title %}Viktorina Tarixçəsi - ZZTest{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 fw-semibold text-center text-primary animate__animated animate__fadeInDown">
+        <i class="fas fa-history me-2"></i> Sizin Viktorina Təqdimat Tarixçəniz
+    </h2>
+
+    <div class="card card-body mb-4 shadow-lg border-0 rounded-3 animate__animated animate__fadeIn">
+        <h5 class="card-title mb-3 text-muted">Təqdimatlarınızı Filtləyin</h5>
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-6 col-lg-4">
+                <label for="{{ filter.form.quiz__title.id_for_label }}" class="form-label mb-1">Viktorina Başlığı</label>
+                <input
+                    type="text"
+                    name="{{ filter.form.quiz__title.name }}"
+                    id="{{ filter.form.quiz__title.id_for_label }}"
+                    class="form-control form-control-sm rounded-pill"
+                    placeholder="məsələn, 'Python Əsasları'"
+                    value="{{ filter.form.quiz__title.value|default_if_none:'' }}"
+                >
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <label for="{{ filter.form.quiz__category__name.id_for_label }}" class="form-label mb-1">Viktorina Kateqoriyası</label>
+                <input
+                    type="text"
+                    name="{{ filter.form.quiz__category__name.name }}"
+                    id="{{ filter.form.quiz__category__name.id_for_label }}"
+                    class="form-control form-control-sm rounded-pill"
+                    placeholder="məsələn, 'Riyaziyyat'"
+                    value="{{ filter.form.quiz__category__name.value|default_if_none:'' }}"
+                >
+            </div>
+
+            <div class="col-auto d-flex gap-2">
+                <button class="btn btn-primary btn-sm rounded-pill px-3" type="submit">
+                    <i class="fas fa-search me-1"></i> Axtar
+                </button>
+
+                {% if filter.form.cleaned_data.quiz__title or filter.form.cleaned_data.quiz__category__name %}
+                <a href="{% url 'quiz_history' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="fas fa-times me-1"></i> Təmizlə
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="card card-body shadow-lg border-0 rounded-3 animate__animated animate__fadeInUp animate__delay-0-5s">
+        <p class="mb-3 fs-5 text-dark fw-bold">
+            <i class="fas fa-list-ol me-2 text-info"></i>Ümumi Təqdimatlar: <span class="badge bg-primary rounded-pill ms-2">{{ submissions_count }}</span>
+        </p>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Viktorina Başlığı</th>
+                        <th scope="col">Xal</th>
+                        <th scope="col">Dəqiqlik</th>
+                        <th scope="col">Sərf Olunan Vaxt</th>
+                        <th scope="col">Təqdim Edilib</th>
+                        <th scope="col">Ətraflı</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions %}
+                    <tr class="animate__animated animate__fadeInUp">
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{% url 'quiz' submission.quiz.id %}" class="text-decoration-none fw-medium text-dark">
+                                {{ submission.quiz.title }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ submission.is_successful_score|yesno:'success,danger' }} rounded-pill px-2 py-1">
+                                {{ submission.score }} / {{submission.total_possible_marks}}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info text-dark rounded-pill px-2 py-1">
+                                {{ submission.accuracy_rate|default:"0" }}%
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary rounded-pill px-2 py-1">
+                                {{ submission.formatted_time_spent }} {# Display the new formatted attribute #}
+                            </span>
+                        </td>
+                        <td class="text-muted small">{{ submission.submitted_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'quiz_result' submission.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                <i class="fas fa-eye me-1"></i> Bax
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-exclamation-circle fa-2x mb-3"></i><br>
+                            Heç bir viktorina təqdimatı tapılmadı. Öyrənməyə başlamağın vaxtıdır!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if submissions.has_other_pages %}
+    <div class="mt-4 d-flex justify-content-center animate__animated animate__fadeInUp animate__delay-1s">
+        <nav aria-label="Quiz submission pagination">
+            <ul class="pagination pagination-sm">
+                {% if submissions.has_previous %}
+                <li class="page-item">
+                    <a class="page-link rounded-start-pill" href="?page={{ submissions.previous_page_number }}{% if request.GET.quiz__title %}&quiz__title={{ request.GET.quiz__title }}{% endif %}{% if request.GET.quiz__category__name %}&quiz__category__name={{ request.GET.quiz__category__name }}{% endif %}">&laquo; Əvvəlki</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-start-pill">&laquo; Əvvəlki</span>
+                </li>
+                {% endif %}
+
+                {% for i in submissions.paginator.page_range %}
+                {% if submissions.number == i %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ i }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}{% if request.GET.quiz__title %}&quiz__title={{ request.GET.quiz__title }}{% endif %}{% if request.GET.quiz__category__name %}&quiz__category__name={{ request.GET.quiz__category__name }}{% endif %}">{{ i }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if submissions.has_next %}
+                <li class="page-item">
+                    <a class="page-link rounded-end-pill" href="?page={{ submissions.next_page_number }}{% if request.GET.quiz__title %}&quiz__title={{ request.GET.quiz__title }}{% endif %}{% if request.GET.quiz__category__name %}&quiz__category__name={{ request.GET.quiz__category__name }}{% endif %}">Sonrakı &raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link rounded-end-pill">Sonrakı &raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+{% endblock scripts %}

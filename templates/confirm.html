@@ -1,0 +1,70 @@
+{% extends 'index.html' %}
+
+{% block title %}Hesabı Sil - ZZTest{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="h5 mb-0 text-center">
+                        <i class="bi bi-exclamation-triangle"></i> Hesabı Sil
+                    </h2>
+                </div>
+                
+                <form method="POST" action="{% url 'delete_profile' %}">
+                    {% csrf_token %}
+                    <div class="card-body">
+                        <div class="alert alert-danger">
+                            <p class="mb-0"><strong>Xəbərdarlıq:</strong> Bu, aşağıdakıları qalıcı olaraq siləcək:</p>
+                            <ul class="mb-0">
+                                <li>Profil məlumatlarınızı</li>
+                                <li>Bütün əlaqəli məlumatları</li>
+                                <li>Giriş məlumatlarınızı</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-4 p-3 border rounded">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                                    style="width: 60px; height: 60px;">
+                                    <span class="fs-4">
+                                        {% if role == 'student' %}🎓
+                                        {% elif role == 'teacher' %}👨‍🏫
+                                        {% elif role == 'parent' %}👪
+                                        {% else %}👤{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h3 class="h6 mb-1">@{{ username }}</h3>
+                                <p class="text-muted small mb-0">{{ full_name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" 
+                                       id="confirmDelete" name="confirmation" required>
+                            <label class="form-check-label text-danger fw-bold" for="confirmDelete">
+                                Bu əməliyyatın geri qaytarıla bilməyəcəyini başa düşürəm
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'profile' username %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Ləğv et
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash-fill"></i> Qalıcı olaraq Sil
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

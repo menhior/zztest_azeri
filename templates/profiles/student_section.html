@@ -1,0 +1,82 @@
+<div class="student-profile">
+    <!-- Basic Info -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Student Information</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Grade:</strong> {{ user_profile.grade }}</p>
+            <p><strong>Mobile:</strong> {{ user_profile.mobile }}</p>
+        </div>
+    </div>
+
+    <!-- Connections -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4>My Connections</h4>
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#connectionModal">
+                <i class="fas fa-plus"></i> Add Connection
+            </button>
+        </div>
+        <div class="card-body">
+            <h5>Teachers</h5>
+            <ul class="list-group mb-3">
+                {% for relation in profile.teachers.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ relation.get_name }} ({{ relation.subject }})
+                        <span class="badge bg-success">Approved</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No teachers connected</li>
+                {% endfor %}
+            </ul>
+
+            <h5>Parents</h5>
+            <ul class="list-group">
+                {% for relation in profile.parents.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ relation.get_name }}
+                        <span class="badge bg-success">Approved</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No parents connected</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Quiz Performance -->
+    <div class="card">
+        <div class="card-header">
+            <h4>My Quiz Performance</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Quiz</th>
+                            <th>Subject</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submissions %}
+                        <tr>
+                            <td>{{ submission.quiz.title }}</td>
+                            <td>{{ submission.quiz.category.name }}</td>
+                            <td>{{ submission.score }}/{{ submission.quiz.question_set.count }}</td>
+                            <td>{{ submission.submitted_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No quiz attempts yet</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

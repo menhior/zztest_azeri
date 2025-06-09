@@ -1,0 +1,399 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}{{quiz.title}} - ZZTest{% endblock title %}
+
+{% block extra_head %}
+    <style>
+        /* General Quiz Styles */
+        body {
+            background-color: #f0f2ff; /* Səhifənin ümumi fonu üçün daha açıq fon */
+        }
+        .quiz-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); /* Canlı, müasir qradiyent */
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2.5rem;
+            border-radius: 1rem; /* Daha belirgin yuvarlaq künclər */
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2); /* Daha dərin kölgə */
+            text-align: center;
+        }
+        .quiz-title-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important; /* Yarı-şəffaf ağ */
+            backdrop-filter: blur(3px); /* Dərinlik üçün incə bulanıqlıq */
+            font-size: 0.9em;
+            padding: 0.4em 0.8em;
+            margin-left: 0.75rem;
+        }
+        .quiz-info-badges .badge {
+            font-size: 1.05em;
+            padding: 0.6em 1em;
+            margin: 0 0.4rem;
+            border-radius: 0.6rem;
+            font-weight: 500;
+        }
+        /* Custom badge colors for better visual hierarchy */
+        .quiz-info-badges .badge.bg-info { /* Kateqoriya üçün istifadə olunur */
+            background-color: #0d6efd !important; /* Bootstrap-in standart məlumat rəngindən bir qədər tünd mavi */
+            color: white;
+        }
+        .quiz-info-badges .badge.bg-primary { /* Çətinlik üçün istifadə olunur */
+            background-color: #6f42c1 !important; /* Fərqli bənövşəyi ton */
+            color: white;
+        }
+        .quiz-info-badges .badge.bg-secondary { /* Orta bal üçün istifadə olunur */
+            background-color: #6c757d !important;
+            color: white;
+        }
+
+        /* Question and Timer Area */
+        .quiz-controls {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 1.5rem;
+        }
+        .time-warning {
+            color: #dc3545; /* Xəbərdarlıq üçün qırmızı */
+            animation: pulse 1.2s infinite ease-in-out; /* Daha yavaş, hamar nəbz */
+            font-weight: bold;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.03); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Progress Bar */
+        #progress-bar-container {
+            height: 14px; /* Bir qədər qalın tərəqqi çubuğu */
+            margin-bottom: 2rem;
+            border-radius: 0.75rem;
+            overflow: hidden; /* Daxili çubuğun radiusu saxlamasını təmin edir */
+            background-color: #e9ecef; /* Yol üçün daha açıq fon */
+        }
+        .progress-bar {
+            transition: width 0.4s ease-in-out; /* Hamar tərəqqi animasiyası */
+            border-radius: 0.75rem; /* Konteyner radiusuna uyğunlaşdırın */
+            background-color: #0d6efd; /* Varsayılan olaraq əsas rəngə */
+        }
+        /* Progress bar color changes based on completion */
+        .progress-bar.bg-danger { background-color: #dc3545 !important; } /* Aşağı tərəqqi üçün qırmızı */
+        .progress-bar.bg-warning { background-color: #ffc107 !important; } /* Orta tərəqqi üçün sarı */
+        .progress-bar.bg-success { background-color: #28a745 !important; } /* Yüksək tərəqqi üçün yaşıl */
+
+        /* Question Cards */
+        .question-card {
+            border: none; /* Varsayılan kart sərhədini silin */
+            border-radius: 0.75rem;
+            box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.1); /* Daha yumşaq, daha belirgin kölgə */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background-color: white;
+        }
+        .question-card:hover {
+            transform: translateY(-7px); /* Üzərinə gələndə daha nəzərə çarpan qalxma */
+            box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.15); /* Üzərinə gələndə artırılmış kölgə */
+        }
+        .question-card .card-header {
+            background-color: #f8f9fa; /* Başlıq üçün açıq fon */
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #343a40;
+            padding: 1rem 1.5rem;
+            border-top-left-radius: 0.75rem; /* Kart radiusuna uyğunlaşdırın */
+            border-top-right-radius: 0.75rem; /* Kart radiusuna uyğunlaşdırın */
+        }
+        .question-card .card-body {
+            padding: 1.5rem;
+        }
+        .question-card .card-text { /* Sual mətni stili */
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Option List (Radio Buttons) */
+        .list-group-flush .list-group-item {
+            cursor: pointer;
+            border: 1px solid #e9ecef; /* Seçimlər üçün açıq sərhəd */
+            border-radius: 0.6rem; /* Yuvarlaq seçimlər */
+            margin-bottom: 0.75rem; /* Seçimlər arasında boşluq */
+            padding: 0.9rem 1.25rem;
+            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            display: flex; /* Düzləndirmə üçün flexbox istifadə edin */
+            align-items: center; /* Məzmunu şaquli mərkəzləşdirin */
+            background-color: #ffffff;
+        }
+        .list-group-flush .list-group-item:last-child {
+            margin-bottom: 0;
+        }
+        .list-group-flush .list-group-item:hover {
+            background-color: #f0f8ff; /* Üzərinə gələndə açıq mavi rəng */
+            border-color: #a8d7ff; /* Üzərinə gələndə bir qədər tünd sərhəd */
+            box-shadow: 0 0.2rem 0.5rem rgba(0, 123, 255, 0.1); /* Üzərinə gələndə incə mavi kölgə */
+        }
+        .list-group-flush .list-group-item input[type="radio"] {
+            margin-top: 0; /* Mətnlə düzləndir */
+            flex-shrink: 0; /* Kiçilməsinin qarşısını alın */
+        }
+        .list-group-flush .list-group-item input[type="radio"]:checked {
+            border-color: #007bff; /* Seçildikdə əsas mavi sərhəd */
+            background-color: #007bff; /* Seçildikdə əsas mavi fon */
+        }
+        .list-group-flush .list-group-item input[type="radio"]:checked + .form-check-label {
+            color: #007bff; /* Seçildikdə əsas mavi mətn */
+            font-weight: 600; /* Seçildikdə qalın mətn */
+        }
+        .list-group-flush .list-group-item .form-check-label {
+            margin-left: 0.75rem; /* Radio və mətn arasında boşluq */
+            flex-grow: 1; /* Etiketə mövcud yerin hamısını tutmağa icazə verin */
+            font-size: 1.05rem;
+            cursor: pointer; /* Etiketin basıla bilən olmasını təmin edin */
+        }
+
+        /* Buttons */
+        .btn-lg {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 2rem; /* Tamamilə yuvarlaq düymələr */
+        }
+        /* .btn-outline-secondary stilləri artıq istifadə olunmadığı üçün silindi */
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0a58ca;
+            border-color: #0a58ca;
+            transform: translateY(-2px);
+            box-shadow: 0 0.2rem 0.5rem rgba(0, 0, 0, 0.1);
+        }
+        .submit-button-wrapper {
+            display: flex;
+            justify-content: center; /* Tək düyməni mərkəzləşdirin */
+            width: 100%;
+        }
+
+        /* Animations from animate.css (if used, ensure library is linked) */
+        .animate__animated {
+            animation-duration: 0.8s;
+        }
+    </style>
+{% endblock extra_head %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="quiz-header animate__animated animate__fadeInDown">
+            <h1 class="display-5 fw-bold mb-3">
+                {{quiz.title}}
+                <span class="badge rounded-pill quiz-title-badge">{{quiz.question_set.all|length}} Sual</span>
+            </h1>
+            <p class="lead mb-0">{{quiz.description}}</p>
+            <div class="quiz-info-badges mt-4 d-flex justify-content-center animate__animated animate__fadeIn animate__delay-1s">
+                <span class="badge bg-primary">{{quiz.difficulty}}</span>
+                <span class="badge bg-info">{{quiz.category.name}}</span>
+                {% if quiz.avg_score %}
+                    <span class="badge bg-secondary">Orta Bal: {{quiz.avg_score|floatformat:1}}/{{quiz.question_set.all|length}}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center quiz-controls animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="fs-4 fw-bold">
+                <i class="fas fa-list-ol me-2 text-info"></i>
+                <span id="question-counter">0</span> cavablandırılıb / {{ quiz.question_set.all|length }} sual
+            </div>
+            <div class="fs-4">
+                <span id="timer" class="fw-bold text-primary"><i class="fas fa-clock me-2"></i>00:00</span>
+                <span id="time-warning" class="time-warning ms-3 d-none">Vaxt bitmək üzrədir!</span>
+            </div>
+        </div>
+
+        <div class="progress" id="progress-bar-container">
+            <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+
+        <form action="" method="post" id="quiz-form" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="time_spent" id="time-spent" value="0">
+
+            <div class="questions my-4">
+                {% for question in quiz.question_set.all %}
+                <div class="card mb-4 question-card animate__animated animate__fadeInUp" id="q{{forloop.counter}}" data-question-id="{{question.id}}" data-mark="{{question.mark}}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fw-bold fs-5">Sual {{forloop.counter}}</span>
+                        <span class="badge bg-secondary py-2 px-3">{{question.mark}} Bal{{question.mark|pluralize}}</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{question.text}}</p>
+                        <div class="list-group list-group-flush">
+                            {% for option in question.choice_set.all %}
+                            <label class="list-group-item">
+                                <input class="form-check-input" 
+                                    value="{{ option.id }}"
+                                    type="radio" 
+                                    name="question_{{ question.id }}" 
+                                    id="opt{{ option.id }}"
+                                    {% if forloop.first %}required{% endif %}>
+                                <span class="form-check-label">{{option.text}}</span>
+                                {% if option.is_correct %}
+                                <span class="visually-hidden correct-answer">{{option.text}}</span>
+                                {% endif %}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-center my-5 animate__animated animate__fadeInUp animate__delay-1-5s"> {# Changed justify-content-between to justify-content-center #}
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-button">
+                    <i class="fas fa-check-circle me-2"></i> Testi Təqdim Et
+                </button>
+            </div>
+        </form>
+    </div>
+
+<script>
+    // DOM Elements
+    const submitButton = document.getElementById("submit-button");
+    const timerSpan = document.getElementById("timer");
+    const timeWarning = document.getElementById("time-warning");
+    const quizForm = document.getElementById("quiz-form");
+    const questions = document.querySelectorAll(".question-card"); 
+    const timeSpentInput = document.getElementById("time-spent");
+    const progressBar = document.querySelector("#progress-bar-container .progress-bar");
+    const questionCounterSpan = document.getElementById("question-counter");
+
+    // Quiz Configuration
+    const totalQuestions = questions.length;
+    const timePerQuestion = 60; // saniyə
+    let quizDuration = totalQuestions * timePerQuestion; 
+    let quizTimerId;
+    let startTime = new Date(); 
+    let answeredQuestionsCount = 0; 
+
+    // Initialize Quiz
+    document.addEventListener('DOMContentLoaded', function() {
+        // No more loadProgress() call here
+        
+        quizTimerId = setInterval(updateTimer, 1000);
+        updateTimer(); 
+        
+        document.querySelectorAll('.form-check-input').forEach(input => {
+            input.addEventListener('change', updateProgressAndCounter);
+        });
+        
+        updateProgressAndCounter(); 
+    });
+
+    // Timer Functions
+    function updateTimer() {
+        if (quizDuration < 0) { 
+            quizDuration = 0;
+        }
+
+        const minutes = Math.floor(quizDuration / 60);
+        const seconds = quizDuration % 60;
+        
+        timerSpan.innerHTML = `<i class="fas fa-clock me-2"></i>${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        const initialQuizDuration = totalQuestions * timePerQuestion;
+        const warningThresholdSeconds = Math.max(120, initialQuizDuration * 0.2); 
+        
+        if (quizDuration <= warningThresholdSeconds && quizDuration > 0) {
+            timeWarning.classList.remove('d-none');
+        } else {
+            timeWarning.classList.add('d-none');
+        }
+        
+        if (quizDuration <= 0) {
+            clearInterval(quizTimerId);
+            submitQuiz(); 
+        } else {
+            quizDuration--;
+            
+            const currentTime = new Date();
+            timeSpentInput.value = Math.floor((currentTime - startTime) / 1000);
+        }
+    }
+
+    // Progress and Question Counter Tracking
+    function updateProgressAndCounter() {
+        answeredQuestionsCount = 0; 
+        questions.forEach(question => {
+            const questionId = question.dataset.questionId;
+            const selectedOption = question.querySelector(`input[name="question_${questionId}"]:checked`);
+            if (selectedOption) {
+                answeredQuestionsCount++;
+            }
+        });
+
+        questionCounterSpan.textContent = answeredQuestionsCount; 
+        
+        const progress = (answeredQuestionsCount / totalQuestions) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        
+        progressBar.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+        if (progress < 30) {
+            progressBar.classList.add('bg-danger');
+        } else if (progress < 70) {
+            progressBar.classList.add('bg-warning');
+        } else {
+            progressBar.classList.add('bg-success');
+        }
+    }
+
+    // Submit Quiz Function
+    function submitQuiz() {
+        clearInterval(quizTimerId);
+        
+        submitButton.disabled = true; 
+
+        quizForm.submit(); 
+    }
+
+    // Event Listeners
+    submitButton.addEventListener('click', function(e) {
+        e.preventDefault(); 
+        if (quizForm.checkValidity()) { 
+            if (confirm('Testinizi təqdim etmək istədiyinizə əminsinizmi?')) {
+                submitQuiz();
+            }
+        } else {
+            quizForm.classList.add('was-validated');
+            const firstInvalid = document.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            alert('Zəhmət olmasa, təqdim etməzdən əvvəl bütün tələb olunan sualları cavablandırın.');
+        }
+    });
+    
+    // Removed saveProgressBtn.addEventListener('click', saveProgress);
+
+    window.addEventListener('beforeunload', function(e) {
+        // Now it always warns if any question is answered, as there's no save
+        if (answeredQuestionsCount > 0 && answeredQuestionsCount < totalQuestions) {
+            e.preventDefault();
+            e.returnValue = 'Yadda saxlanılmamış dəyişiklikləriniz var. Çıxmaq istədiyinizə əminsinizmi?';
+        }
+    });
+</script>
+
+{% endblock content %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" integrity="sha512-..." crossorigin="anonymous"></script>
+{% endblock scripts %}

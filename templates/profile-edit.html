@@ -1,0 +1,151 @@
+{% extends 'index.html' %}
+
+{% block title %}Profili Redaktə et - ZZTest{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Profili Redaktə et</h2>
+                </div>
+                
+                <div class="card-body">
+                    <form id="profileForm" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="text-center mb-4">
+                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center" 
+                                style="width: 120px; height: 120px; border: 3px solid #0d6efd;">
+                                <span class="display-4">
+                                    {% if role == 'student' %}🎓
+                                    {% elif role == 'teacher' %}👨‍🏫
+                                    {% else %}👪
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        {% if messages %}
+                        <div class="mb-3">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-4">
+                            <h3 class="h6 text-muted mb-3">Əsas Məlumatlar</h3>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">Ad</label>
+                                    <input type="text" class="form-control" id="firstName" name="firstname"
+                                            value="{{ user_object.first_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Soyad</label>
+                                    <input type="text" class="form-control" id="lastName" name="lastname"
+                                            value="{{ user_object.last_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                            value="{{ user_object.email }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="username" class="form-label">İstifadəçi adı</label>
+                                    <input type="text" class="form-control" id="username" name="username"
+                                            value="{{ user_object.username }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h3 class="h6 text-muted mb-3">Əlaqə Məlumatları</h3>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="mobile" class="form-label">Mobil Nömrə</label>
+                                    <input type="tel" class="form-control" id="mobile" name="mobile"
+                                            value="{{ user_profile.mobile }}" pattern="[0-9]{10,15}"
+                                            title="10-15 rəqəmli telefon nömrəsi" required>
+                                    <div class="form-text">Yalnız rəqəmlər daxil edin (10-15 simvol)</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label">Cins</label>
+                                    <select class="form-select" id="gender" name="gender" required>
+                                        <option value="">Cins seçin</option>
+                                        <option value="Male" {% if user_profile.gender == 'Male' %}selected{% endif %}>Kişi</option>
+                                        <option value="Female" {% if user_profile.gender == 'Female' %}selected{% endif %}>Qadın</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if role == 'student' %}
+                        <div class="mb-4">
+                            <h3 class="h6 text-muted mb-3">Tələbə Məlumatları</h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="grade" class="form-label">Sinif</label>
+                                    <input type="number" class="form-control" id="grade" name="grade"
+                                            value="{{ user_profile.grade }}" min="1" max="12" required>
+                                </div>
+                            </div>
+                        </div>
+                        {% elif role == 'teacher' %}
+                        <div class="mb-4">
+                            <h3 class="h6 text-muted mb-3">Müəllim Məlumatları</h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="subject" class="form-label">Fənn</label>
+                                    <input type="text" class="form-control" id="subject" name="subject"
+                                            value="{{ user_profile.subject }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'profile' user_object.username %}" class="btn btn-outline-secondary me-md-2">
+                                Ləğv et
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Dəyişiklikləri Yadda Saxla
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    // Mobile validation
+    const mobile = document.getElementById('mobile').value;
+    if (!/^\d{10,15}$/.test(mobile)) {
+        alert('Zəhmət olmasa, etibarlı 10-15 rəqəmli telefon nömrəsi daxil edin');
+        e.preventDefault();
+        return;
+    }
+    
+    {% if role == 'student' %}
+    // Grade validation
+    const grade = document.getElementById('grade');
+    if (grade.value < 1 || grade.value > 12) {
+        alert('Zəhmət olmasa, 1 ilə 12 arasında bir sinif daxil edin');
+        e.preventDefault();
+        return;
+    }
+    {% endif %}
+    
+    // Additional validations can be added here
+});
+</script>

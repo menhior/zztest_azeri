@@ -1,0 +1,63 @@
+{% load static %}
+
+<footer class="site-footer py-4 mt-5">
+    <div class="container">
+        <ul class="nav justify-content-center pb-3 mb-3 footer-links">
+            <li class="nav-item"><a href="{% url 'home' %}" class="nav-link px-3">Ana Səhifə</a></li>
+            <li class="nav-item"><a href="{% url 'about' %}" class="nav-link px-3">Haqqımızda</a></li>
+            <li class="nav-item"><a href="{% url 'blogs' %}" class="nav-link px-3">Bloqlar</a></li>
+            <li class="nav-item"><a href="{% url 'contact' %}" class="nav-link px-3">Əlaqə</a></li>
+            <li class="nav-item"><a href="{% url 'terms_conditions' %}" class="nav-link px-3">Şərtlər və Qaydalar</a></li>
+            <li class="nav-item"><a href="{% url 'downloads' %}" class="nav-link px-3">Yükləmələr</a></li>
+        </ul>
+        <div class="text-center footer-brand-section">
+            <a class="footer-brand" href="{% url 'home' %}">ZZTEST</a>
+            <p class="mb-0 mt-2 text-muted-custom">© 2023, BrainBunny. Bütün hüquqlar qorunur.</p>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .site-footer {
+        background-color: #f8f9fa; /* Light background to match the main content sections */
+        border-top: 1px solid #e9ecef; /* Subtle top border */
+        color: #6c757d; /* Muted text color */
+        padding-top: 2.5rem;
+        padding-bottom: 1.5rem;
+        font-size: 0.95rem; /* Slightly smaller font for compactness */
+    }
+
+    .site-footer .footer-links .nav-link {
+        color: #495057; /* Darker gray for better readability */
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+        padding-left: 1rem !important; /* Adjust horizontal padding */
+        padding-right: 1rem !important; /* Adjust horizontal padding */
+    }
+
+    .site-footer .footer-links .nav-link:hover {
+        color: #6a11cb; /* Matches primary brand color on hover */
+        text-decoration: underline;
+    }
+
+    .site-footer .footer-brand-section {
+        margin-top: 1rem; /* Space between links and brand info */
+    }
+
+    .site-footer .footer-brand {
+        font-weight: 700;
+        font-size: 1.4rem; /* Slightly smaller than navbar brand */
+        color: #6a11cb !important; /* Matches navbar brand color */
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .site-footer .footer-brand:hover {
+        color: #2575fc !important; /* Matches navbar brand hover */
+    }
+
+    .site-footer .text-muted-custom {
+        color: #888e93 !important; /* A bit lighter than default muted text for copyright */
+        font-size: 0.85rem;
+    }
+</style>
